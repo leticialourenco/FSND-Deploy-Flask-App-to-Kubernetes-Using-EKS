@@ -6,18 +6,18 @@ Description: EKSWSV1
 
 Parameters:
 
-  EksClusterName:
+  EksClusterName: 
     Type: String
     Description: The name of the EKS cluster created
-    Default: 
+    Default: simple-jwt-api
     MinLength: 1
     MaxLength: 100
     ConstraintDescription: You must enter the EKS cluster name
 
-  GitSourceRepo:
+  GitSourceRepo: 
     Type: String
     Description: GitHub source repository - must contain a Dockerfile and buildspec.yml in the base
-    Default: 
+    Default: FSND-Deploy-Flask-App-to-Kubernetes-Using-EKS
     MinLength: 1
     MaxLength: 100
     ConstraintDescription: You must enter a GitHub repository name
@@ -38,9 +38,9 @@ Parameters:
     MaxLength: 100
     ConstraintDescription: You must enter a GitHub personal access token
 
-  GitHubUser:
+  GitHubUser: 
     Type: String
-    Default:
+    Default: leticialourenco
     Description: GitHub username or organization
     MinLength: 3
     MaxLength: 100
@@ -54,9 +54,9 @@ Parameters:
     MaxLength: 100
     ConstraintDescription: You must enter a CodeBuild Docker image
 
-  KubectlRoleName:
+  KubectlRoleName: 
     Type: String
-    Default: 
+    Default: UdacityFlaskDeployCBKubectlRole
     Description: IAM role used by kubectl to interact with EKS cluster
     MinLength: 3
     MaxLength: 100
@@ -113,6 +113,7 @@ Resources:
     DeletionPolicy: Retain
 
   CustomResourceLambda:
+    DeletionPolicy: Retain
     Type: AWS::Lambda::Function
     Properties:
       Code:
@@ -165,6 +166,7 @@ Resources:
       Timeout: 300
 
   CustomResourceLambdaExecutionRole:
+    DeletionPolicy: Retain
     Type: AWS::IAM::Role
     Properties:
       ManagedPolicyArns:
@@ -191,6 +193,7 @@ Resources:
                   - iam:UpdateAssumeRolePolicy
 
   KubectlAssumeRoleCustomResource:
+    DeletionPolicy: Retain
     Type: Custom::CustomResource
     Properties:
       ServiceToken: !GetAtt CustomResourceLambda.Arn
@@ -201,6 +204,7 @@ Resources:
       - CodeBuildServiceRole
 
   CodePipelineServiceRole:
+    DeletionPolicy: Retain
     Type: AWS::IAM::Role
     Properties:
       Path: /
@@ -237,6 +241,7 @@ Resources:
     DependsOn: CodePipelineArtifactBucket
 
   CodeBuildServiceRole:
+    DeletionPolicy: Retain
     Type: AWS::IAM::Role
     Properties:
       Path: /
@@ -303,6 +308,7 @@ Resources:
                   - ecr:CompleteLayerUpload
 
   CodeBuildProject:
+    DeletionPolicy: Retain
     Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
@@ -329,6 +335,7 @@ Resources:
     DependsOn: KubectlAssumeRoleCustomResource
 
   CodePipelineGitHub:
+    DeletionPolicy: Retain
     Type: AWS::CodePipeline::Pipeline
     Properties:
       RoleArn: !GetAtt CodePipelineServiceRole.Arn
